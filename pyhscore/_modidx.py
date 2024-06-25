@@ -5,4 +5,4 @@ d = { 'settings': { 'branch': 'main',
                 'doc_host': 'https://IntegratedPathologyUnit-ICR.github.io',
                 'git_url': 'https://github.com/IntegratedPathologyUnit-ICR/pyhscore',
                 'lib_path': 'pyhscore'},
-  'syms': {'pyhscore.score': {'pyhscore.score.foo': ('score.html#foo', 'pyhscore/score.py')}}}
+  'syms': {'pyhscore.score': {'pyhscore.score.compute_pxlhscore': ('score.html#compute_pxlhscore', 'pyhscore/score.py')}}}

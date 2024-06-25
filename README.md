@@ -15,3 +15,36 @@ pip install pyhscore
 ## How to use
 
 Fill me in please! Don’t forget code examples:
+
+``` python
+from pyhscore import score
+
+help(score.compute_pxlhscore)
+```
+
+    Help on function compute_pxlhscore in module pyhscore.score:
+
+    compute_pxlhscore(hed_img, h_threshold=0.05, d_thresholds=[0.12, 0.24, 0.6], verbose=False)
+        Computes the pixel H-score for a given HED (Hematoxylin and Eosin-DAB) stained image.
+
+        The H-score is calculated based on the intensity of the DAB stain, which is
+        indicative of the presence and quantity of a specific biomarker in IHC images.
+        The function allows for automatic thresholding based on the distribution of staining intensities.
+        Inspired by the implementation in Ram et al. 2021.
+
+        Parameters:
+        - hed_img (numpy.ndarray): The HED-stained image as a NumPy array of shape
+            (height, width, channels).
+        - h_threshold (str or float): Threshold for Hematoxylin intensity.
+            If 'auto', the threshold is set to the mean intensity.
+        - d_thresholds (str or list of floats): Thresholds for DAB intensity,
+            defining negative, low, medium, and high intensity ranges.
+            If 'auto', thresholds are set to the 90th, 94.95th, and 99.9th percentiles.
+        - verbose (bool): If True, displays histograms of the distributions of
+            Hematoxylin and DAB stain values, and images showing pixels classified
+            as high, medium, low, and negative DAB stained.
+
+        Returns:
+        - pxlHscore (float): The pixel H-score, a weighted sum of pixels classified
+            as having high, medium, or low DAB intensity,
+            normalized by the total number of pixels considered.
