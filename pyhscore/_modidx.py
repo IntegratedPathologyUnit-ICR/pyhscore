@@ -2,7 +2,7 @@
 
 d = { 'settings': { 'branch': 'main',
                 'doc_baseurl': '/pyhscore',
-                'doc_host': 'https://IntegratedPathologyUnit-ICR.github.io',
-                'git_url': 'https://github.com/IntegratedPathologyUnit-ICR/pyhscore',
+                'doc_host': 'https://ferranc96.github.io',
+                'git_url': 'https://github.com/ferranc96/pyhscore',
                 'lib_path': 'pyhscore'},
   'syms': {'pyhscore.score': {'pyhscore.score.compute_pxlhscore': ('score.html#compute_pxlhscore', 'pyhscore/score.py')}}}

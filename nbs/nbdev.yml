@@ -3,7 +3,7 @@ project:
 
 website:
   title: "pyhscore"
-  site-url: "https://IntegratedPathologyUnit-ICR.github.io/pyhscore"
+  site-url: "https://ferranc96.github.io/pyhscore"
   description: "Compute H-scores in Python, including the canonical cell-based H-score and a pixel-wise implementation inspired by Ram et al. 2021."
   repo-branch: main
-  repo-url: "https://github.com/IntegratedPathologyUnit-ICR/pyhscore"
+  repo-url: "https://github.com/ferranc96/pyhscore"
