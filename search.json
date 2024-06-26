@@ -1,0 +1,52 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "pyhscore",
+    "section": "",
+    "text": "First set up a new conda environment with some basic dependencies:\nconda create -n pyhscore python pip ipykernel\nThen activate the environment and install the package:\nconda activate pyhscore\npip install pyhscore",
+    "crumbs": [
+      "pyhscore"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "pyhscore",
+    "section": "",
+    "text": "First set up a new conda environment with some basic dependencies:\nconda create -n pyhscore python pip ipykernel\nThen activate the environment and install the package:\nconda activate pyhscore\npip install pyhscore",
+    "crumbs": [
+      "pyhscore"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "pyhscore",
+    "section": "How to use",
+    "text": "How to use\nAlways ensure you are using an active environment where the package has been installed to. If you followed the suggested install instructions that can be done by running conda activate pyhscore.\n\nfrom pyhscore import score\n\nhelp(score.compute_pxlhscore)\n\nHelp on function compute_pxlhscore in module pyhscore.score:\n\ncompute_pxlhscore(hed_img, h_threshold=0.05, d_thresholds=[0.12, 0.24, 0.6], verbose=False)\n    Computes the pixel H-score for a given HED (Hematoxylin and Eosin-DAB) stained image.\n\n    The H-score is calculated based on the intensity of the DAB stain, which is\n    indicative of the presence and quantity of a specific biomarker in IHC images.\n    The function allows for automatic thresholding based on the distribution of staining intensities.\n    Inspired by the implementation in Ram et al. 2021.\n\n    Parameters:\n\n    - hed_img (numpy.ndarray): The HED-stained image as a NumPy array of shape\n        (height, width, channels).\n\n    - h_threshold (str or float): Threshold for Hematoxylin intensity.\n        If 'auto', the threshold is set to the mean intensity.\n\n    - d_thresholds (str or list of floats): Thresholds for DAB intensity,\n        defining negative, low, medium, and high intensity ranges.\n        If 'auto', thresholds are set to the 90th, 94.95th, and 99.9th percentiles.\n\n    - verbose (bool): If True, displays histograms of the distributions of\n        Hematoxylin and DAB stain values, and images showing pixels classified\n        as high, medium, low, and negative DAB stained.\n\n    Returns:\n\n    - pxlHscore (float): The pixel H-score, a weighted sum of pixels classified\n        as having high, medium, or low DAB intensity,\n        normalized by the total number of pixels considered.",
+    "crumbs": [
+      "pyhscore"
+    ]
+  },
+  {
+    "objectID": "score.html",
+    "href": "score.html",
+    "title": "score",
+    "section": "",
+    "text": "import numpy as np\nfrom matplotlib import pyplot",
+    "crumbs": [
+      "score"
+    ]
+  },
+  {
+    "objectID": "score.html#pixel-wise-h-score",
+    "href": "score.html#pixel-wise-h-score",
+    "title": "score",
+    "section": "Pixel-wise H score",
+    "text": "Pixel-wise H score\n\nsource\n\ncompute_pxlhscore\n\n compute_pxlhscore (hed_img, h_threshold=0.05, d_thresholds=[0.12, 0.24,\n                    0.6], verbose=False)\n\n*Computes the pixel H-score for a given HED (Hematoxylin and Eosin-DAB) stained image.\nThe H-score is calculated based on the intensity of the DAB stain, which is indicative of the presence and quantity of a specific biomarker in IHC images. The function allows for automatic thresholding based on the distribution of staining intensities. Inspired by the implementation in Ram et al. 2021.\nParameters:\n\nhed_img (numpy.ndarray): The HED-stained image as a NumPy array of shape (height, width, channels).\nh_threshold (str or float): Threshold for Hematoxylin intensity. If ‘auto’, the threshold is set to the mean intensity.\nd_thresholds (str or list of floats): Thresholds for DAB intensity, defining negative, low, medium, and high intensity ranges. If ‘auto’, thresholds are set to the 90th, 94.95th, and 99.9th percentiles.\nverbose (bool): If True, displays histograms of the distributions of Hematoxylin and DAB stain values, and images showing pixels classified as high, medium, low, and negative DAB stained.\n\nReturns:\n\npxlHscore (float): The pixel H-score, a weighted sum of pixels classified as having high, medium, or low DAB intensity, normalized by the total number of pixels considered.*\n\nThe pixelwise H-score is computed as follows:\n\\[\\\npxlH = 100 \\times \\frac{3 \\times N_{DH} + 2 \\times N_{DM} + N_{DL}}{N_{DH} + N_{DM} + N_{DL} + N_{N}}\n\\]\nwhere:\n\n\\(\\N_{DH}\\) is the number of pixels with high DAB intensity,\n\\(\\N_{DM}\\) is the number of pixels with medium DAB intensity,\n\\(\\N_{DL}\\) is the number of pixels with low DAB intensity,\n\\(\\N_{N}\\) is the number of pixels with negative DAB intensity.\n\nExample\n\nimport skimage as ski\n\n\nihc_rgb = ski.data.immunohistochemistry()\npyplot.imshow(ihc_rgb)\n\n\n\n\n\n\n\n\n\nihc_hed = ski.color.rgb2hed(ihc_rgb)\n\n\nstain_names = [\"Hematoxylin\", \"Eosin\", \"DAB\"]\nfig, axes = pyplot.subplots(1, 3, figsize=(12, 6)) \n\nnull = np.zeros_like(ihc_hed[:, :, 0])\n\nfor i, name in enumerate(stain_names):\n    # Create an RGB image for the current stain\n    channels = [null, null, null]\n    channels[i] = ihc_hed[:, :, i]\n    rgb_img = ski.color.hed2rgb(np.stack(channels, axis=-1))\n    \n    # Display\n    axes[i].imshow(rgb_img)\n    axes[i].set_title(name)\n    axes[i].axis(\"off\")\n\npyplot.tight_layout()\npyplot.show()\n\n\n\n\n\n\n\n\n\nresult = compute_pxlhscore(ihc_hed)\nprint(result)\n\n79.24793673539793\n\n\n\nassert round(compute_pxlhscore(ihc_hed), ndigits=3) == 79.248\n\n\nassert round(compute_pxlhscore(ihc_hed,h_threshold=\"auto\", d_thresholds=\"auto\"), ndigits=3) == 32.689",
+    "crumbs": [
+      "score"
+    ]
+  }
+]

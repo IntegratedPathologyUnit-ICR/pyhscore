@@ -1,0 +1,1 @@
+Sitemap: https://IntegratedPathologyUnit-ICR.github.io/pyhscore/sitemap.xml
