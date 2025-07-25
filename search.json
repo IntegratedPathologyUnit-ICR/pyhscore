@@ -1,0 +1,62 @@
+[
+  {
+    "objectID": "score.html",
+    "href": "score.html",
+    "title": "score",
+    "section": "",
+    "text": "import numpy as np\nfrom matplotlib import pyplot\nimport skimage as ski",
+    "crumbs": [
+      "score"
+    ]
+  },
+  {
+    "objectID": "score.html#pixel-wise-h-score",
+    "href": "score.html#pixel-wise-h-score",
+    "title": "score",
+    "section": "Pixel-wise H score",
+    "text": "Pixel-wise H score\n\nsource\n\ncompute_pxlhscore\n\n compute_pxlhscore (hed_img, h_threshold=0.05, d_thresholds=[0.12, 0.24,\n                    0.6], verbose=False)\n\n*Computes the pixel H-score for a given HED (Hematoxylin and Eosin-DAB) stained image.\nThe H-score is calculated based on the intensity of the DAB stain, which is indicative of the presence and quantity of a specific biomarker in IHC images. The function allows for automatic thresholding based on the distribution of staining intensities. Inspired by the implementation in Ram et al. 2021.\nParameters:\n\nhed_img (numpy.ndarray): The HED-stained image as a NumPy array of shape (height, width, channels).\nh_threshold (str or float): Threshold for Hematoxylin intensity. If ‘default’, the threshold is set to 0.05. If ‘static’, the threshold is set to the mean intensity. If ‘auto’, the threshold is set based on Otsu’s thresholding.\nd_thresholds (str or list of floats): Thresholds for DAB intensity, defining negative, low, medium, and high intensity ranges. If ‘default’, thresholds are set to [0.12, 0.24, 0.6]. If ‘static’, thresholds are set to the 90th, 94.95th, and 99.9th percentiles. If ‘auto’, thresholds are set based on Otsu’s thresholding for 3 classes.\nverbose (bool): If True, displays histograms of the distributions of Hematoxylin and DAB stain values, and images showing pixels classified as high, medium, low, and negative DAB stained.\n\nReturns:\n\npxlHscore (float): The pixel H-score, a weighted sum of pixels classified as having high, medium, or low DAB intensity, normalized by the total number of pixels considered.*\n\nThe pixelwise H-score is computed as follows:\n\\[\\\npxlH = 100 \\times \\frac{3 \\times N_{DH} + 2 \\times N_{DM} + N_{DL}}{N_{DH} + N_{DM} + N_{DL} + N_{N}}\n\\]\nwhere:\n\n\\(\\N_{DH}\\) is the number of pixels with high DAB intensity,\n\\(\\N_{DM}\\) is the number of pixels with medium DAB intensity,\n\\(\\N_{DL}\\) is the number of pixels with low DAB intensity,\n\\(\\N_{N}\\) is the number of pixels with negative DAB intensity.\n\nExample\n\nihc_rgb = ski.data.immunohistochemistry()\npyplot.imshow(ihc_rgb)\n\n\n\n\n\n\n\n\n\nihc_hed = ski.color.rgb2hed(ihc_rgb)\n\n\nstain_names = [\"Hematoxylin\", \"Eosin\", \"DAB\"]\nfig, axes = pyplot.subplots(1, 3, figsize=(12, 6)) \n\nnull = np.zeros_like(ihc_hed[:, :, 0])\n\nfor i, name in enumerate(stain_names):\n    # Create an RGB image for the current stain\n    channels = [null, null, null]\n    channels[i] = ihc_hed[:, :, i]\n    rgb_img = ski.color.hed2rgb(np.stack(channels, axis=-1))\n    \n    # Display\n    axes[i].imshow(rgb_img)\n    axes[i].set_title(name)\n    axes[i].axis(\"off\")\n\npyplot.tight_layout()\npyplot.show()\n\n\n\n\n\n\n\n\n\nresult = compute_pxlhscore(ihc_hed, verbose=True)\nprint(result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMean intensity for H pixels: 0.035449981689453125\nMean intensity for DN pixels: 0.88824462890625\nMean intensity for DL pixels: 0.10962677001953125\nMean intensity for DM pixels: 0.002094268798828125\nMean intensity for DH pixels: 3.4332275390625e-05\nMean intensity for N pixels: 0.031993865966796875\n\n\n\n\n\n\n\n\n\nHaematoxylin threshold: 0.05\nDAB thresholds: [0.12, 0.24, 0.6]\nPixel H-score: 79.24793673539793\n79.24793673539793\n\n\n\nassert result == compute_pxlhscore(ihc_hed, d_thresholds=[0.12, 0.24, 0.6]) == compute_pxlhscore(ihc_hed, d_thresholds=\"default\")\n\n\nassert result == compute_pxlhscore(ihc_hed, h_threshold=0.05) == compute_pxlhscore(ihc_hed, h_threshold=\"default\")\n\n\nresult = compute_pxlhscore(ihc_hed, h_threshold=\"static\", d_thresholds=\"static\", verbose=True)\nprint(result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMean intensity for H pixels: 0.4108695983886719\nMean intensity for DN pixels: 0.8999786376953125\nMean intensity for DL pixels: 0.04950714111328125\nMean intensity for DM pixels: 0.049510955810546875\nMean intensity for DH pixels: 0.001003265380859375\nMean intensity for N pixels: 0.3635520935058594\n\n\n\n\n\n\n\n\n\nHaematoxylin threshold: 0.02006582564164016\nDAB thresholds: [0.12352821 0.14450278 0.26666182]\nPixel H-score: 32.689285155896414\n32.689285155896414\n\n\n\nresult = compute_pxlhscore(ihc_hed, h_threshold=\"auto\", d_thresholds=\"auto\", verbose=True)\nprint(result)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nMean intensity for H pixels: 0.3234710693359375\nMean intensity for DN pixels: 0.43198394775390625\nMean intensity for DL pixels: 0.279510498046875\nMean intensity for DM pixels: 0.22780609130859375\nMean intensity for DH pixels: 0.060699462890625\nMean intensity for N pixels: 0.10207366943359375\n\n\n\n\n\n\n\n\n\nHaematoxylin threshold: 0.024294931878818742\nDAB thresholds: [0.03847427 0.08582721 0.13909927]\nPixel H-score: 136.88033701468746\n136.88033701468746",
+    "crumbs": [
+      "score"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "pyhscore",
+    "section": "",
+    "text": "First set up a new conda environment with some basic dependencies:\nconda create -n pyhscore python pip ipykernel\nThen activate the environment and install the package:\nconda activate pyhscore\npip install pyhscore",
+    "crumbs": [
+      "pyhscore"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "pyhscore",
+    "section": "",
+    "text": "First set up a new conda environment with some basic dependencies:\nconda create -n pyhscore python pip ipykernel\nThen activate the environment and install the package:\nconda activate pyhscore\npip install pyhscore",
+    "crumbs": [
+      "pyhscore"
+    ]
+  },
+  {
+    "objectID": "index.html#how-to-use",
+    "href": "index.html#how-to-use",
+    "title": "pyhscore",
+    "section": "How to use",
+    "text": "How to use\nAlways ensure you are using an active environment where the package has been installed to. If you followed the suggested install instructions that can be done by running conda activate pyhscore.\n\nfrom pyhscore import score\n\nhelp(score.compute_pxlhscore)\n\nHelp on function compute_pxlhscore in module pyhscore.score:\n\ncompute_pxlhscore(hed_img, h_threshold=0.05, d_thresholds=[0.12, 0.24, 0.6], verbose=False)\n    Computes the pixel H-score for a given HED (Hematoxylin and Eosin-DAB) stained image.\n\n    The H-score is calculated based on the intensity of the DAB stain, which is\n    indicative of the presence and quantity of a specific biomarker in IHC images.\n    The function allows for automatic thresholding based on the distribution of staining intensities.\n    Inspired by the implementation in Ram et al. 2021.\n\n    Parameters:\n\n    - hed_img (numpy.ndarray): The HED-stained image as a NumPy array of shape\n        (height, width, channels).\n\n    - h_threshold (str or float): Threshold for Hematoxylin intensity.\n        If 'auto', the threshold is set to the mean intensity.\n\n    - d_thresholds (str or list of floats): Thresholds for DAB intensity,\n        defining negative, low, medium, and high intensity ranges.\n        If 'auto', thresholds are set to the 90th, 94.95th, and 99.9th percentiles.\n\n    - verbose (bool): If True, displays histograms of the distributions of\n        Hematoxylin and DAB stain values, and images showing pixels classified\n        as high, medium, low, and negative DAB stained.\n\n    Returns:\n\n    - pxlHscore (float): The pixel H-score, a weighted sum of pixels classified\n        as having high, medium, or low DAB intensity,\n        normalized by the total number of pixels considered.",
+    "crumbs": [
+      "pyhscore"
+    ]
+  },
+  {
+    "objectID": "index.html#development",
+    "href": "index.html#development",
+    "title": "pyhscore",
+    "section": "Development",
+    "text": "Development\nIt is recommended to use the Dev Container provided with the repo (Miniconda with zsh enabled). Once within the container, pip install nbdev and pyhscore \".[dev]\".\nEnsure also that quarto is installed by doing nbdev_install_quarto.\nIf working with VS code, note that the nbdev jupyter clean-up hooks might not work properly, so make sure the git commit hooks are setup properly (https://nbdev.fast.ai/tutorials/pre_commit.html) or install the nbdev VS code extension.\nBefore commiting, ensure the following is run (either manually or via hooks/extensions)\n\nnbdev_export\nnbdev_test\nnbdev_clean\nnbdev_readme\nnbdev_preview",
+    "crumbs": [
+      "pyhscore"
+    ]
+  }
+]
