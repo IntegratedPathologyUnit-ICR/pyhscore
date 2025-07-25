@@ -25,11 +25,15 @@ def compute_pxlhscore(
         (height, width, channels).
 
     - h_threshold (str or float): Threshold for Hematoxylin intensity. 
-        If 'auto', the threshold is set to the mean intensity.
+        If 'default', the threshold is set to 0.05.
+        If 'static', the threshold is set to the mean intensity.
+        If 'auto', the threshold is set based on Otsu's thresholding.
 
     - d_thresholds (str or list of floats): Thresholds for DAB intensity, 
-        defining negative, low, medium, and high intensity ranges. 
-        If 'auto', thresholds are set to the 90th, 94.95th, and 99.9th percentiles.
+        defining negative, low, medium, and high intensity ranges.
+        If 'default', thresholds are set to [0.12, 0.24, 0.6].
+        If 'static', thresholds are set to the 90th, 94.95th, and 99.9th percentiles.
+        If 'auto', thresholds are set based on Otsu's thresholding for 3 classes.
 
     - verbose (bool): If True, displays histograms of the distributions of 
         Hematoxylin and DAB stain values, and images showing pixels classified 
@@ -47,14 +51,24 @@ def compute_pxlhscore(
     h_array = hed_img[:, :, 0].flatten()
     d_array = hed_img[:, :, 2].flatten()
     
-    # Automatic thresholding for Hematoxylin if requested
-    if h_threshold == "auto":
+    # Hematoxylin thresholds
+    if h_threshold == "default":
+        h_threshold = 0.05
+    elif h_threshold == "static":
         h_threshold = np.mean(h_array)
-    
-    # Automatic thresholding for DAB if requested
-    if d_thresholds == "auto":
+    elif h_threshold == "auto":
+        h_threshold = ski.filters.threshold_otsu(
+            image=h_array, nbins=256, hist=None)
+    # DAB thresholds
+    if d_thresholds == "default":
+        d_thresholds = [0.12, 0.24, 0.6]
+    elif d_thresholds == "static":
         d_thresholds = np.quantile(d_array, [0.9, 0.9495, 0.999])
-    
+    elif d_thresholds == "auto":
+        d_thresholds = ski.filters.threshold_multiotsu(
+            image=d_array, classes=4, 
+            nbins=256, hist=None)
+        
     # Plotting histograms if verbose mode is on
     if verbose:
         pyplot.figure()
@@ -90,7 +104,7 @@ def compute_pxlhscore(
         print(f"Mean intensity for DH pixels: {dh_pixels.mean()}")
         print(f"Mean intensity for N pixels: {n_pixels.mean()}")
         
-        fig, axs = matplotlib.pyplot.subplots(2, 2, figsize=(6, 6))
+        fig, axs = pyplot.subplots(2, 2, figsize=(6, 6))
         axs[0, 0].imshow(dh_pixels)
         axs[0, 0].set_title("High DAB")
         axs[0, 1].imshow(dm_pixels)
@@ -102,7 +116,7 @@ def compute_pxlhscore(
         for ax_row in axs:
             for ax in ax_row:
                 ax.axis("off")
-        matplotlib.pyplot.show()
+        pyplot.show()
     
     # Calculating the pixel H-score
     dh_pixels_sum = dh_pixels.sum()
@@ -111,6 +125,8 @@ def compute_pxlhscore(
     pxlHscore = 100 * (3 * dh_pixels_sum + 2 * dm_pixels_sum + dl_pixels_sum) / (dh_pixels_sum + dm_pixels_sum + dl_pixels_sum + n_pixels.sum())
     
     if verbose:
+        print(f"Haematoxylin threshold: {h_threshold}")
+        print(f"DAB thresholds: {d_thresholds}")
         print(f"Pixel H-score: {pxlHscore}")
     
     return pxlHscore
