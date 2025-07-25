@@ -69,3 +69,25 @@ help(score.compute_pxlhscore)
         - pxlHscore (float): The pixel H-score, a weighted sum of pixels classified
             as having high, medium, or low DAB intensity,
             normalized by the total number of pixels considered.
+
+## Development
+
+It is recommended to use the Dev Container provided with the repo
+(Miniconda with zsh enabled). Once within the container, pip install
+`nbdev` and `pyhscore ".[dev]"`.
+
+Ensure also that quarto is installed by doing `nbdev_install_quarto`.
+
+If working with VS code, note that the nbdev jupyter clean-up hooks
+might not work properly, so make sure the git commit hooks are setup
+properly (https://nbdev.fast.ai/tutorials/pre_commit.html) or install
+the nbdev VS code extension.
+
+Before commiting, ensure the following is run (either manually or via
+hooks/extensions)
+
+1.  nbdev_export
+2.  nbdev_test
+3.  nbdev_clean
+4.  nbdev_readme
+5.  nbdev_preview
